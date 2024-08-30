@@ -28,11 +28,6 @@ DIST_DIRS          := $(ETCDIR) $(DATADIR) $(LIBDIR) $(LOGDIR) \
                       $(shell dirname $(CMDPIPE))
 JS_PREFIX          := $(TEST_PREFIX)$(ELIOMSTATICDIR)/$(PROJECT_NAME)
 
-CONF_IN            := $(wildcard *.conf.in)
-CONFIG_FILES       := $(patsubst %.conf.in,$(TEST_PREFIX)$(ETCDIR)/%.conf,$(CONF_IN))
-TEST_CONFIG_FILES  := $(patsubst %.conf.in,$(TEST_PREFIX)$(ETCDIR)/%-test.conf,$(CONF_IN))
-
-
 all:: css
 all byte opt:: ${VOLATILE_SCHEMA}
 
@@ -43,21 +38,18 @@ all byte opt:: ${VOLATILE_SCHEMA}
 
 DIST_FILES = $(ELIOMSTATICDIR)/$(PROJECT_NAME).js $(LIBDIR)/$(PROJECT_NAME).cma
 
-.PHONY: test.byte test.opt staticfiles
+.PHONY: test.byte test.opt test.static.byte test.static.opt staticfiles
 
-test.byte:: byte | $(addprefix $(TEST_PREFIX),$(DIST_DIRS)) staticfiles
-	@echo "==== The website is available at http://localhost:$(TEST_PORT) ===="
-	$(OCSIGENSERVER) $(RUN_DEBUG) -c $(patsubst %.conf.in,$(TEST_PREFIX)$(ETCDIR)/%-test.conf,$(CONF_IN))
-test.opt:: opt | $(addprefix $(TEST_PREFIX),$(DIST_DIRS)) staticfiles
-	@echo "==== The website is available at http://localhost:$(TEST_PORT) ===="
-	$(OCSIGENSERVER.OPT) $(RUN_DEBUG) -c $(patsubst %.conf.in,$(TEST_PREFIX)$(ETCDIR)/%-test.conf,$(CONF_IN))
-
-test.static.byte:: static.byte | $(addprefix $(TEST_PREFIX),$(DIST_DIRS)) staticfiles
+test.byte:: static.byte | $(addprefix $(TEST_PREFIX),$(DIST_DIRS)) staticfiles
 	@echo "==== The website is available at http://localhost:$(TEST_PORT) ===="
 	dune exec ./project_name_main.bc
-test.static.opt:: static.opt | $(addprefix $(TEST_PREFIX),$(DIST_DIRS)) staticfiles
+test.opt:: static.opt | $(addprefix $(TEST_PREFIX),$(DIST_DIRS)) staticfiles
 	@echo "==== The website is available at http://localhost:$(TEST_PORT) ===="
 	dune exec ./project_name_main.exe
+
+test.static.byte: test.byte
+
+test.static.opt: test.opt
 
 $(addprefix $(TEST_PREFIX), $(DIST_DIRS)):
 	mkdir -p $@
@@ -76,10 +68,10 @@ static.opt: opt
 ##----------------------------------------------------------------------
 ## Installing & Running
 
-.PHONY: install install.byte install.byte install.opt install.static install.etc install.lib install.lib.byte install.lib.opt run.byte run.opt
+.PHONY: install install.byte install.byte install.opt install.static install.lib install.lib.byte install.lib.opt run.byte run.opt
 install: install.byte install.opt
-install.byte: install.lib.byte install.etc install.static | $(addprefix $(PREFIX),$(DATADIR) $(LOGDIR) $(shell dirname $(CMDPIPE)))
-install.opt: install.lib.opt install.etc install.static | $(addprefix $(PREFIX),$(DATADIR) $(LOGDIR) $(shell dirname $(CMDPIPE)))
+install.byte: install.lib.byte install.static | $(addprefix $(PREFIX),$(DATADIR) $(LOGDIR) $(shell dirname $(CMDPIPE)))
+install.opt: install.lib.opt install.static | $(addprefix $(PREFIX),$(DATADIR) $(LOGDIR) $(shell dirname $(CMDPIPE)))
 install.lib: install.lib.byte install.lib.opt
 install.lib.byte: $(TEST_PREFIX)$(LIBDIR)/$(PROJECT_NAME).cma | $(PREFIX)$(LIBDIR)
 	install $< $(PREFIX)$(LIBDIR)
@@ -89,8 +81,6 @@ install.static: $(TEST_PREFIX)$(ELIOMSTATICDIR)/$(PROJECT_NAME).js | $(PREFIX)$(
 	cp -r $(LOCAL_STATIC_CSS) $(PREFIX)$(FILESDIR)
 	[ -z $(WWWUSER) ] || chown -R $(WWWUSER) $(PREFIX)$(FILESDIR)
 	install $(addprefix -o ,$(WWWUSER)) $< $(PREFIX)$(ELIOMSTATICDIR)
-install.etc: $(TEST_PREFIX)$(ETCDIR)/$(PROJECT_NAME).conf | $(PREFIX)$(ETCDIR)
-	install $< $(PREFIX)$(ETCDIR)/$(PROJECT_NAME).conf
 
 .PHONY:
 print-install-files:
@@ -102,62 +92,6 @@ $(addprefix $(PREFIX),$(ETCDIR) $(LIBDIR)):
 	install -d $@
 $(addprefix $(PREFIX),$(DATADIR) $(LOGDIR) $(ELIOMSTATICDIR) $(shell dirname $(CMDPIPE))):
 	install $(addprefix -o ,$(WWWUSER)) -d $@
-
-run.byte:
-	@echo "==== The website is available at http://localhost:$(PORT) ===="
-	$(OCSIGENSERVER) $(RUN_DEBUG) -c ${PREFIX}${ETCDIR}/${PROJECT_NAME}.conf
-run.opt:
-	@echo "==== The website is available at http://localhost:$(PORT) ===="
-	$(OCSIGENSERVER.OPT) $(RUN_DEBUG) -c ${PREFIX}${ETCDIR}/${PROJECT_NAME}.conf
-
-##----------------------------------------------------------------------
-
-##----------------------------------------------------------------------
-## Config files
-
-ELIOM_MODULES=$(patsubst %,\<eliommodule\ findlib-package=\"%\"\ /\>,$(SERVER_ELIOM_PACKAGES))
-FINDLIB_PACKAGES=$(patsubst %,\<extension\ findlib-package=\"%\"\ /\>,$(SERVER_PACKAGES))
-EDIT_WARNING=DON\'T EDIT THIS FILE! It is generated from $(PROJECT_NAME).conf.in, edit that one, or the variables in Makefile.options
-SED_ARGS = -e "/^ *%%%/d"
-SED_ARGS += -e "s|%%PROJECT_NAME%%|$(PROJECT_NAME)|g"
-SED_ARGS += -e "s|%%DB_NAME%%|$(DB_NAME)|g"
-SED_ARGS += -e "s|%%DB_HOST%%|$(DB_HOST)|g"
-SED_ARGS += -e "s|%%DB_PORT%%|$(DB_PORT)|g"
-SED_ARGS += -e "s|%%DB_USER%%|$(DB_USER)|g"
-SED_ARGS += -e "s|%%DB_PASSWORD%%|$(DB_PASSWORD)|g"
-SED_ARGS += -e "s|%%CMDPIPE%%|%%PREFIX%%$(CMDPIPE)|g"
-SED_ARGS += -e "s|%%LOGDIR%%|%%PREFIX%%$(LOGDIR)|g"
-SED_ARGS += -e "s|%%DATADIR%%|%%PREFIX%%$(DATADIR)|g"
-SED_ARGS += -e "s|%%LIBDIR%%|%%PREFIX%%$(LIBDIR)|g"
-SED_ARGS += -e "s|%%WARNING%%|$(EDIT_WARNING)|g"
-SED_ARGS += -e "s|%%PACKAGES%%|$(FINDLIB_PACKAGES)|g"
-SED_ARGS += -e "s|%%ELIOM_MODULES%%|$(ELIOM_MODULES)|g"
-SED_ARGS += -e "s|%%FILESDIR%%|%%PREFIX%%$(FILESDIR)|g"
-SED_ARGS += -e "s|%%ELIOMSTATICDIR%%|%%PREFIX%%$(ELIOMSTATICDIR)|g"
-SED_ARGS += -e "s|%%APPNAME%%|$(shell basename `readlink $(JS_PREFIX).js` .js)|g"
-SED_ARGS += -e "s|%%CSSNAME%%|$(shell readlink $(CSS_PREFIX).css)|g"
-ifeq ($(DEBUG),yes)
-  SED_ARGS += -e "s|%%DEBUGMODE%%|\<debugmode /\>|g"
-else
-  SED_ARGS += -e "s|%%DEBUGMODE%%||g"
-endif
-
-LOCAL_SED_ARGS := -e "s|%%PORT%%|$(TEST_PORT)|g"
-LOCAL_SED_ARGS += -e "s|%%USERGROUP%%||g"
-GLOBAL_SED_ARGS := -e "s|%%PORT%%|$(PORT)|g"
-ifeq ($(WWWUSER)$(WWWGROUP),)
-  GLOBAL_SED_ARGS += -e "s|%%USERGROUP%%||g"
-else
-  GLOBAL_SED_ARGS += -e "s|%%USERGROUP%%|<user>$(WWWUSER)</user><group>$(WWWGROUP)</group>|g"
-endif
-
-JS_AND_CSS=$(JS_PREFIX).js $(CSS_PREFIX).css
-
-$(CONFIG_FILES): $(TEST_PREFIX)$(ETCDIR)/%.conf: %.conf.in $(JS_AND_CSS) | $(TEST_PREFIX)$(ETCDIR)
-	sed $(SED_ARGS) $(GLOBAL_SED_ARGS) $< | sed -e "s|%%PREFIX%%|$(PREFIX)|g" > $@
-
-$(TEST_CONFIG_FILES): $(TEST_PREFIX)$(ETCDIR)/%-test.conf: %.conf.in $(JS_AND_CSS) | $(TEST_PREFIX)$(ETCDIR)
-	sed $(SED_ARGS) $(LOCAL_SED_ARGS) $< | sed -e "s|%%PREFIX%%|$(TEST_PREFIX)|g" > $@
 
 ##----------------------------------------------------------------------
 
