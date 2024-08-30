@@ -4,6 +4,9 @@
 let%server application_name = "project_name"
 let%client application_name = Eliom_client.get_application_name ()
 
+let%server () =
+    Ocsipersist_settings.set_db_file "local/var/data/project_name/project_name_db";
+
 (* Create a module for the application. See
    https://ocsigen.org/eliom/manual/clientserver-applications for more
    information. *)
