@@ -120,6 +120,8 @@
  (alias project_name)
  (deps
   project_name.cma
+  project_name_main.bc
+  project_name_main.exe
   client/project_name.bc
   client/project_name.bc.js
   tools/check_modules.ml)

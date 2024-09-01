@@ -43,8 +43,12 @@ Here's some help on how to work with this basic distillery project:
  - Compile it only
      $ make all (or byte or opt)
 
- - Deploy your project on your system
+ - Deploy your project on your system:
+   Adapt the paths in your source code to match the installation.
+   The default source code is using local files in this directory.
+   The default installation puts files in your opam directory
+   (see variable PREFIX in file Makefile.options).
      $ make install (or install.byte or install.opt)
 
  - Run the server on the deployed project
-     $ make run.byte (or run.opt)
+     $ make run
