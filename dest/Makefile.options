@@ -1,10 +1,10 @@
 #----------------------------------------------------------------------
-#           SETTINGS FOR THE ELIOM PROJECT project_name
+#           SETTINGS FOR THE ELIOM PROJECT %%%PROJECT_NAME%%%
 #----------------------------------------------------------------------
 # Required binaries
 OPAM                  := opam
 
-PROJECT_NAME          := project_name
+PROJECT_NAME          := %%%PROJECT_NAME%%%
 
 ##----------------------------------------------------------------------
 

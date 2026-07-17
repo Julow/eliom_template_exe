@@ -1,9 +1,9 @@
 (dirs tools client gen assets static local)
 
 (library
- (name project_name)
+ (name %%%PROJECT_NAME%%%)
  (modules
-  (:standard \ Project_name_main))
+  (:standard \ %%%MODULE_NAME%%%_main))
  (libraries eliom.server ocsipersist-sqlite ocsipersist-sqlite.settings)
  (library_flags
   (:standard -linkall))
@@ -18,16 +18,16 @@
    --
    --rpc-raw
    ;   --prefix
-   ;   Project_name_
+   ;   %%%MODULE_NAME%%%_
    ;   --suffix
    ;   _i18n
    ;   --default-module
-   ;   Project_name_i18n
+   ;   %%%MODULE_NAME%%%_i18n
    )))
 
 (executables
- (names project_name_main)
- (public_names project_name)
+ (names %%%PROJECT_NAME%%%_main)
+ (public_names %%%PROJECT_NAME%%%)
  (modes
   (byte exe)
   (native exe))
@@ -35,8 +35,8 @@
   eliom.server
   ocsipersist-sqlite
   ocsigenserver.ext.staticmod
-  project_name)
- (modules Project_name_main)
+  %%%PROJECT_NAME%%%)
+ (modules %%%MODULE_NAME%%%_main)
  (preprocess
   (pps
    ;   pgocaml_ppx
@@ -46,16 +46,16 @@
    eliom.ppx.server
    ;   --
    ;   --prefix
-   ;   Project_name_
+   ;   %%%MODULE_NAME%%%_
    ;   --suffix
    ;   _i18n
    ;   --default-module
-   ;   Project_name_i18n
+   ;   %%%MODULE_NAME%%%_i18n
    )))
 
 ;(rule
-; (target project_name_i18n.eliom)
-; (deps assets/project_name_i18n.tsv)
+; (target %%%PROJECT_NAME%%%_i18n.eliom)
+; (deps assets/%%%PROJECT_NAME%%%_i18n.tsv)
 ; (action
 ;  (with-stdout-to
 ;   %{target}
@@ -85,7 +85,7 @@
 (subdir
  client
  (executables
-  (names project_name)
+  (names %%%PROJECT_NAME%%%)
   (modes js byte wasm)
   (preprocess
    (pps
@@ -93,11 +93,11 @@
     ;    ocsigen-i18n
     ;    --
     ;    --prefix
-    ;    Project_name_
+    ;    %%%MODULE_NAME%%%_
     ;    --suffix
     ;    _i18n
     ;    --default-module
-    ;    Project_name_i18n
+    ;    %%%MODULE_NAME%%%_i18n
     ))
   (js_of_ocaml
    (build_runtime_flags :standard --enable use-js-string)
@@ -115,14 +115,14 @@
 ; Main rule:
 
 (rule
- (alias project_name)
+ (alias %%%PROJECT_NAME%%%)
  (deps
-  project_name.cma
-  project_name_main.bc
-  project_name_main.exe
-  client/project_name.bc
-  client/project_name.bc.js
-  client/project_name.bc.wasm.js
+  %%%PROJECT_NAME%%%.cma
+  %%%PROJECT_NAME%%%_main.bc
+  %%%PROJECT_NAME%%%_main.exe
+  client/%%%PROJECT_NAME%%%.bc
+  client/%%%PROJECT_NAME%%%.bc.js
+  client/%%%PROJECT_NAME%%%.bc.wasm.js
   tools/check_modules.ml)
  (action
-  (run ocaml -I +unix -I +str tools/check_modules.ml project_name)))
+  (run ocaml -I +unix -I +str tools/check_modules.ml %%%PROJECT_NAME%%%)))
