@@ -1,0 +1,18 @@
+; To run the application locally:
+;  dune build
+;  dune exec project_name
+;
+; The initial 'dune build' is needed to make sure that static files are updated.
+
+(subdir
+ local/var/www/project_name
+ (rule
+  (mode promote)
+  (action
+   (copy %{workspace_root}/app/client/main.bc.js project_name.js)))
+ (subdir
+  css
+  (rule
+   (mode promote)
+   (action
+    (copy %{workspace_root}/static/css/project_name.css project_name.css)))))

@@ -1,5 +1,7 @@
-# Local server configuration
-local
+# Local server state
+local/**
+!local/**/
+!local/**/.keep
 
 # Eliom
 .depend
