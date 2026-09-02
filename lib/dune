@@ -6,7 +6,9 @@
    gen-library
    --wrapped
    false
-   project_name
+   --public-name
+   project_name.lib
+   project_name_lib
    --dune
    %{dep:dune})))
 
@@ -25,8 +27,8 @@
   (diff dune dune.corrected)))
 
 (library
- (public_name project_name.server)
- (name project_name)
+ (public_name project_name.lib.server)
+ (name project_name_lib)
  (modes byte native)
  (wrapped false)
  (library_flags
@@ -42,8 +44,8 @@
 (subdir
  client
  (library
-  (public_name project_name.client)
-  (name project_name)
+  (public_name project_name.lib.client)
+  (name project_name_lib)
   (modes byte)
   (wrapped false)
   (library_flags

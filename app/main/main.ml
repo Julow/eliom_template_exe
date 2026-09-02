@@ -1,9 +1,6 @@
 (** This is the main file if you are using static linking without config file.
 *)
 
-(* Ensures that the [Project_name] module is loaded. *)
-module%shared Project_name = Project_name
-
 let logdir = "local/var/log/project_name"
 let datadir = "local/var/data/project_name"
 let rundir = "local/var/run"

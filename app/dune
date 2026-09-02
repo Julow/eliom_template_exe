@@ -5,12 +5,12 @@
    ocsigen-dune-rules
    gen-application
    --name
-   main
+   project_name
    --wasm
    --server-libraries
-   ocsipersist-sqlite,ocsigenserver.ext.staticmod
+   ocsipersist-sqlite
    --eliom-libraries
-   project_name
+   project_name.lib
    project_name
    --dune
    %{dep:dune})))
@@ -29,36 +29,35 @@
  (action
   (diff dune dune.corrected)))
 
-(executable
+(library
  (public_name project_name)
- (name main)
- (package project_name)
+ (name project_name)
  (modes byte native)
+ (library_flags
+  (:standard -linkall))
  (preprocess
   (pps
    eliom.ppx.server
    ocsigen-ppx-rpc
    js_of_ocaml-ppx_deriving_json
    --rpc-raw))
- (libraries
-  eliom.server
-  ocsigenserver
-  js_of_ocaml
-  ocsipersist-sqlite
-  ocsigenserver.ext.staticmod
-  project_name.server))
+ (libraries eliom.server ocsipersist-sqlite project_name.lib.server))
 
 (subdir
  client
  (executable
-  (name main)
+  (name project_name)
   (modes js wasm byte)
   (preprocess
    (pps js_of_ocaml-ppx js_of_ocaml-ppx_deriving_json))
   (js_of_ocaml
    (build_runtime_flags :standard --enable use-js-string)
    (flags :standard --enable with-js-error --enable use-js-string))
-  (libraries eliom.client js_of_ocaml js_of_ocaml-lwt project_name.client))
+  (libraries
+   eliom.client
+   js_of_ocaml
+   js_of_ocaml-lwt
+   project_name.lib.client))
  (dynamic_include ../dune.client))
 
 (rule
@@ -77,6 +76,17 @@
    ocsigen-dune-rules
    check-modules
    --client
-   %{dep:client/main.bc}
+   %{dep:client/project_name.bc}
    --server
-   %{dep:main.bc})))
+   %{dep:check_modules/main.bc})))
+
+(subdir
+ check_modules
+ (rule
+  (write-file main.ml ""))
+ (executable
+  (name main)
+  (modes byte)
+  (link_flags
+   (:standard -linkall))
+  (libraries project_name)))

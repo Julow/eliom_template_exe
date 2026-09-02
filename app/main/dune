@@ -1,0 +1,11 @@
+(executable
+ (public_name project_name)
+ (name main)
+ (package project_name)
+ (modes byte native)
+ (libraries
+  eliom.server
+  ocsigenserver
+  ocsipersist-sqlite
+  ocsigenserver.ext.staticmod
+  project_name))
