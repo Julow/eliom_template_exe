@@ -1,0 +1,58 @@
+;
+; This Dune file was generated with ocsigen-dune-rules.
+; To update it, modify the invocation below and run
+;
+;     dune runtest --auto-promote
+;
+
+(rule
+ (with-stdout-to
+  dune.corrected
+  (run ocsigen-dune-rules gen-library --wrapped false project_name)))
+
+;
+; Below this line, any changes will be overwritten.
+;
+
+(rule
+ (alias runtest)
+ (action
+  (diff dune dune.corrected)))
+
+(library
+ (public_name project_name.server)
+ (name project_name)
+ (modes byte native)
+ (wrapped false)
+ (library_flags
+  (:standard -linkall))
+ (preprocess
+  (pps
+   eliom.ppx.server
+   ocsigen-ppx-rpc
+   js_of_ocaml-ppx_deriving_json
+   --rpc-raw))
+ (libraries eliom.server))
+
+(subdir
+ client
+ (library
+  (public_name project_name.client)
+  (name project_name)
+  (modes byte)
+  (wrapped false)
+  (library_flags
+   (:standard -linkall))
+  (preprocess
+   (pps js_of_ocaml-ppx js_of_ocaml-ppx_deriving_json))
+  (libraries eliom.client js_of_ocaml js_of_ocaml-lwt))
+ (dynamic_include ../dune.client))
+
+(rule
+ (deps
+  (glob_files *.eliom)
+  (glob_files *.eliomi))
+ (action
+  (with-stdout-to
+   dune.client
+   (run ocsigen-dune-rules gen-client-modules .))))

@@ -45,6 +45,6 @@ let%shared () =
                       ~service:(Eliom_service.static_dir ())
                       ["css"; "project_name.css"])
                  () ])
-          (body [h1 [txt "Welcome to Eliom!"]]))
+          (body [My_lib.main_page]))
   in
   App.register ~service:main_service run
