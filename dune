@@ -16,3 +16,13 @@
    (mode promote)
    (action
     (copy %{workspace_root}/static/css/project_name.css project_name.css)))))
+
+; Install the www directory
+
+(install
+ (section share)
+ (package project_name)
+ (files
+  (app/client/main.bc.js as www/project_name.js)
+  (glob_files_rec
+   (static/** with_prefix www))))
