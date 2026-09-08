@@ -13,6 +13,7 @@
    gen-application
    --name
    main
+   --wasm
    --server-libraries
    ocsipersist-sqlite,ocsigenserver.ext.staticmod
    --eliom-libraries
@@ -51,7 +52,7 @@
  client
  (executable
   (name main)
-  (modes js byte)
+  (modes js wasm byte)
   (preprocess
    (pps js_of_ocaml-ppx js_of_ocaml-ppx_deriving_json))
   (js_of_ocaml

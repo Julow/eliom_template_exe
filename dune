@@ -10,6 +10,20 @@
   (mode promote)
   (action
    (copy %{workspace_root}/app/client/main.bc.js project_name.js)))
+ (rule
+  (mode promote)
+  ; Depend on assets dir as it's not build by default
+  (deps main.bc.wasm.assets)
+  (action
+   (copy %{workspace_root}/app/client/main.bc.wasm.js project_name.wasm.js)))
+ (rule
+  (mode promote)
+  ; Name is hardcoded into compiled wasm files
+  (targets
+   (dir main.bc.wasm.assets))
+  (deps %{workspace_root}/app/client/main.bc.wasm.assets)
+  (action
+   (run cp -r %{deps} .)))
  (subdir
   css
   (rule
@@ -24,5 +38,9 @@
  (package project_name)
  (files
   (app/client/main.bc.js as www/project_name.js)
+  (app/client/main.bc.wasm.js as www/project_name.wasm.js)
+  ; It seems that we can't change the wasm assets directory name
+  (glob_files_rec
+   (app/client/main.bc.wasm.assets/** with_prefix www/main.bc.wasm.assets))
   (glob_files_rec
    (static/** with_prefix www))))
