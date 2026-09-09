@@ -10,7 +10,9 @@
    --server-libraries
    ocsipersist-sqlite,ocsigenserver.ext.staticmod
    --eliom-libraries
-   project_name
+   project_name,project_name.i18n
+   --preprocess
+   ocsigen-i18n,--,--default-module,I18n
    project_name
    --dune
    %{dep:dune})))
@@ -39,14 +41,19 @@
    eliom.ppx.server
    ocsigen-ppx-rpc
    js_of_ocaml-ppx_deriving_json
-   --rpc-raw))
+   --rpc-raw
+   ocsigen-i18n
+   --
+   --default-module
+   I18n))
  (libraries
   eliom.server
   ocsigenserver
   js_of_ocaml
   ocsipersist-sqlite
   ocsigenserver.ext.staticmod
-  project_name.server))
+  project_name.server
+  project_name.i18n.server))
 
 (subdir
  client
@@ -54,11 +61,22 @@
   (name main)
   (modes js wasm byte)
   (preprocess
-   (pps js_of_ocaml-ppx js_of_ocaml-ppx_deriving_json))
+   (pps
+    js_of_ocaml-ppx
+    js_of_ocaml-ppx_deriving_json
+    ocsigen-i18n
+    --
+    --default-module
+    I18n))
   (js_of_ocaml
    (build_runtime_flags :standard --enable use-js-string)
    (flags :standard --enable with-js-error --enable use-js-string))
-  (libraries eliom.client js_of_ocaml js_of_ocaml-lwt project_name.client))
+  (libraries
+   eliom.client
+   js_of_ocaml
+   js_of_ocaml-lwt
+   project_name.client
+   project_name.i18n.client))
  (dynamic_include ../dune.client))
 
 (rule

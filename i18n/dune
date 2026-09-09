@@ -1,16 +1,19 @@
 (rule
  (with-stdout-to
+  i18n.eliom
+  (run ocsigen-i18n-generator --languages en,fr --input-file %{dep:i18n.tsv})))
+
+(rule
+ (with-stdout-to
   dune.corrected
   (run
    ocsigen-dune-rules
    gen-library
    --wrapped
    false
-   --eliom-libraries
+   --public-name
    project_name.i18n
-   --preprocess
-   ocsigen-i18n,--,--default-module,I18n
-   project_name
+   project_name_i18n
    --dune
    %{dep:dune})))
 
@@ -29,8 +32,8 @@
   (diff dune dune.corrected)))
 
 (library
- (public_name project_name.server)
- (name project_name)
+ (public_name project_name.i18n.server)
+ (name project_name_i18n)
  (modes byte native)
  (wrapped false)
  (library_flags
@@ -40,35 +43,21 @@
    eliom.ppx.server
    ocsigen-ppx-rpc
    js_of_ocaml-ppx_deriving_json
-   --rpc-raw
-   ocsigen-i18n
-   --
-   --default-module
-   I18n))
- (libraries eliom.server project_name.i18n.server))
+   --rpc-raw))
+ (libraries eliom.server))
 
 (subdir
  client
  (library
-  (public_name project_name.client)
-  (name project_name)
+  (public_name project_name.i18n.client)
+  (name project_name_i18n)
   (modes byte)
   (wrapped false)
   (library_flags
    (:standard -linkall))
   (preprocess
-   (pps
-    js_of_ocaml-ppx
-    js_of_ocaml-ppx_deriving_json
-    ocsigen-i18n
-    --
-    --default-module
-    I18n))
-  (libraries
-   eliom.client
-   js_of_ocaml
-   js_of_ocaml-lwt
-   project_name.i18n.client))
+   (pps js_of_ocaml-ppx js_of_ocaml-ppx_deriving_json))
+  (libraries eliom.client js_of_ocaml js_of_ocaml-lwt))
  (dynamic_include ../dune.client))
 
 (rule

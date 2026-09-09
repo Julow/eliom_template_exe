@@ -18,7 +18,11 @@
   (ocsipersist-sqlite-config
    (and
     (>= 2.0)
-    (< 3.0)))))
+    (< 3.0)))
+  (ocsigen-i18n
+   (and
+    (>= 4.0.0)
+    (< 5.0.0)))))
 
 (dialect
  (name "eliom-server")

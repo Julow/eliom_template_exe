@@ -32,8 +32,21 @@ let%server main_service =
 
 let%client main_service = ~%main_service
 
+let%server set_language () =
+  let language =
+    List.find_map
+      (fun (language, _quality) ->
+         try Some (I18n.guess_language_of_string language) with _ -> None)
+      (Eliom_request_info.get_accept_language ())
+  in
+  Option.iter I18n.set_language language;
+  ignore [%client (Option.iter I18n.set_language ~%language : unit)]
+
+let%client set_language () = ()
+
 let%shared () =
   let run () () =
+    set_language ();
     Lwt.return
       F.(
         html
