@@ -21,4 +21,4 @@ let%shared colored_element contents =
   span
 
 let%shared main_page () =
-  F.(div [h1 [txt "Welcome to "; colored_element [txt "Eliom!"]]])
+  F.(div [h1 [%i18n welcome ~what:[colored_element [txt "Eliom!"]]]])

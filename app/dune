@@ -10,7 +10,9 @@
    --server-libraries
    ocsipersist-sqlite
    --eliom-libraries
-   project_name.lib
+   project_name.lib,project_name.i18n
+   --preprocess
+   ocsigen-i18n,--,--default-module,Project_name_i18n
    project_name
    --dune
    %{dep:dune})))
@@ -40,8 +42,16 @@
    eliom.ppx.server
    ocsigen-ppx-rpc
    js_of_ocaml-ppx_deriving_json
-   --rpc-raw))
- (libraries eliom.server ocsipersist-sqlite project_name.lib.server))
+   --rpc-raw
+   ocsigen-i18n
+   --
+   --default-module
+   Project_name_i18n))
+ (libraries
+  eliom.server
+  ocsipersist-sqlite
+  project_name.lib.server
+  project_name.i18n.server))
 
 (subdir
  client
@@ -55,7 +65,8 @@
    eliom.client
    js_of_ocaml
    js_of_ocaml-lwt
-   project_name.lib.client))
+   project_name.lib.client
+   project_name.i18n.client))
  (dynamic_include ../dune.client))
 
 (subdir
@@ -69,7 +80,8 @@
    eliom.ppx.client
    ocsigen-ppx-rpc
    js_of_ocaml-ppx
-   js_of_ocaml-ppx_deriving_json)))
+   js_of_ocaml-ppx_deriving_json
+   ocsigen-i18n)))
 
 (rule
  (deps
@@ -78,7 +90,13 @@
  (action
   (with-stdout-to
    dune.client
-   (run ocsigen-dune-rules gen-client-modules .))))
+   (run
+    ocsigen-dune-rules
+    gen-client-modules
+    .
+    --
+    --default-module
+    Project_name_i18n))))
 
 (rule
  (alias runtest)
