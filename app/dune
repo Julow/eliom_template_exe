@@ -48,8 +48,6 @@
  (executable
   (name project_name)
   (modes js wasm byte)
-  (preprocess
-   (pps js_of_ocaml-ppx js_of_ocaml-ppx_deriving_json))
   (js_of_ocaml
    (build_runtime_flags :standard --enable use-js-string)
    (flags :standard --enable with-js-error --enable use-js-string))
@@ -59,6 +57,19 @@
    js_of_ocaml-lwt
    project_name.lib.client))
  (dynamic_include ../dune.client))
+
+(subdir
+ client/ppx
+ (rule
+  (write-file main.ml "let () = Ppxlib.Driver.standalone ()"))
+ (executable
+  (name main)
+  (libraries
+   ppxlib
+   eliom.ppx.client
+   ocsigen-ppx-rpc
+   js_of_ocaml-ppx
+   js_of_ocaml-ppx_deriving_json)))
 
 (rule
  (deps
