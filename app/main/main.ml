@@ -10,7 +10,7 @@ let () =
   Ocsipersist_settings.set_db_file (datadir ^ "/project_name_db");
   Ocsigen.Server.start
     ~ports:[`All, 8080]
-    ~veryverbose:() ~debugmode:true ~logdir ~datadir ~uploaddir:(Some "/tmp")
+    ~veryverbose:() ~debugmode:true ~logdir ~uploaddir:(Some "/tmp")
     ~usedefaulthostname:true
     ~command_pipe:(Filename.concat rundir "project_name-cmd")
     ~default_charset:(Some "utf-8")
